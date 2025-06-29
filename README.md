@@ -2,6 +2,10 @@
 
 A Model Context Protocol (MCP) server that provides tools for managing Rust projects using the `cargo` command-line tool.
 
+## Disclaimer
+
+This entire repository was built with generative AI assistance, guided by human oversight throughout the development process. The code, documentation, and architecture were collaboratively developed between human direction and AI implementation.
+
 ## Architecture
 
 The server is organized into several modules for maintainability:
