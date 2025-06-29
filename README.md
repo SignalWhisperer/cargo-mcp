@@ -13,7 +13,14 @@ src/
 ├── server.rs            # MCP server implementation
 ├── tools/
 │   ├── mod.rs           # Tool module exports
-│   ├── definitions.rs   # Tool schema definitions
+│   ├── definitions.rs   # Main tool registry
+│   ├── schemas.rs       # Common schema utilities
+│   ├── build_tools.rs   # Build-related tools (check, build, clippy, fmt)
+│   ├── execution_tools.rs # Execution tools (run, test, bench)
+│   ├── dependency_tools.rs # Dependency management (add, remove, update, tree)
+│   ├── project_tools.rs # Project management (new, init, clean, doc)
+│   ├── registry_tools.rs # Registry operations (search, info, install, uninstall)
+│   ├── utility_tools.rs # Utility tools (metadata, version)
 │   └── executor.rs      # Command execution logic
 ├── types.rs             # Data structures and types
 └── error.rs             # Error handling
