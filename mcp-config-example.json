@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "cargo-mcp": {
+      "command": "/path/to/cargo-mcp/target/release/cargo-mcp",
+      "args": []
+    }
+  }
+}
