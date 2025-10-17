@@ -26,6 +26,15 @@ impl CargoMcpServer {
                 })),
                 error: None,
             },
+            "notifications/initialized" => {
+                // Just ignore this notification - return empty response
+                McpResponse {
+                    jsonrpc: "2.0".to_string(),
+                    id: request.id,
+                    result: None,
+                    error: None,
+                }
+            }
             "tools/list" => McpResponse {
                 jsonrpc: "2.0".to_string(),
                 id: request.id,
@@ -92,10 +101,11 @@ impl CargoMcpServer {
         let mut reader = AsyncBufReader::new(stdin);
         let mut line = String::new();
 
+        // Keep running until stdin is closed
         loop {
             line.clear();
             match reader.read_line(&mut line).await {
-                Ok(0) => break, // EOF
+                Ok(0) => break, // EOF - client closed connection
                 Ok(_) => {
                     let trimmed = line.trim();
                     if trimmed.is_empty() {
@@ -105,10 +115,14 @@ impl CargoMcpServer {
                     match serde_json::from_str::<McpRequest>(trimmed) {
                         Ok(request) => {
                             let response = Self::handle_request(request);
-                            let response_json = serde_json::to_string(&response)?;
-                            stdout.write_all(response_json.as_bytes()).await?;
-                            stdout.write_all(b"\n").await?;
-                            stdout.flush().await?;
+
+                            // Only send response if it has content (skip notifications)
+                            if response.result.is_some() || response.error.is_some() {
+                                let response_json = serde_json::to_string(&response)?;
+                                stdout.write_all(response_json.as_bytes()).await?;
+                                stdout.write_all(b"\n").await?;
+                                stdout.flush().await?;
+                            }
                         }
                         Err(e) => {
                             let error_response = McpResponse {
