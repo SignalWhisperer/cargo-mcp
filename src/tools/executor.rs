@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
 use serde_json::{Value, json};
 use std::process::{Command, Stdio};
+use std::time::Instant;
 
 use crate::types::CargoToolParams;
 
@@ -484,6 +485,8 @@ pub fn execute_cargo_command(subcommand: &str, params: &CargoToolParams) -> Resu
 }
 
 pub fn handle_tool_call(tool_name: &str, params: Value) -> Result<Value> {
+    let start = Instant::now();
+
     let cargo_params: CargoToolParams =
         serde_json::from_value(params).context("Failed to parse tool parameters")?;
 
@@ -518,6 +521,7 @@ pub fn handle_tool_call(tool_name: &str, params: Value) -> Result<Value> {
         "content": [{
             "type": "text",
             "text": output
-        }]
+        }],
+        "execution_time_ms": start.elapsed().as_millis()
     }))
 }
