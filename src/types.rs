@@ -66,6 +66,16 @@ pub struct CargoToolParams {
     #[serde(default)]
     pub all_targets: Option<bool>,
     #[serde(default)]
+    pub no_tests: Option<bool>,
+    #[serde(default)]
+    pub warn_only: Option<bool>,
+    #[serde(default)]
+    pub ignore_docs: Option<bool>,
+    #[serde(default)]
+    pub crate_name: Option<String>,
+    #[serde(default)]
+    pub test_name: Option<String>,
+    #[serde(default)]
     pub fix: Option<bool>,
     #[serde(default)]
     pub allow_dirty: Option<bool>,
