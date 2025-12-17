@@ -8,20 +8,20 @@ use crate::types::CargoToolParams;
 fn handle_clean(params: &CargoToolParams) -> Result<Value> {
     let mut cmd = Command::new("cargo");
     cmd.arg("clean");
-    
+
     if let Some(working_dir) = &params.working_directory {
         cmd.current_dir(working_dir);
     }
-    
+
     let output = cmd.output().context("Failed to execute cargo clean")?;
-    
+
     let result = if output.status.success() {
         "Clean completed successfully".to_string()
     } else {
         let stderr = String::from_utf8_lossy(&output.stderr);
         format!("Clean failed: {}", stderr)
     };
-    
+
     Ok(json!({
         "content": [{
             "type": "text",
@@ -33,24 +33,24 @@ fn handle_clean(params: &CargoToolParams) -> Result<Value> {
 fn handle_search_crates(params: &CargoToolParams) -> Result<Value> {
     let mut cmd = Command::new("cargo");
     cmd.arg("search");
-    
+
     if let Some(query) = &params.query {
         cmd.arg(query);
     }
-    
+
     if let Some(limit) = params.limit {
         cmd.arg("--limit").arg(limit.to_string());
     }
-    
+
     if let Some(working_dir) = &params.working_directory {
         cmd.current_dir(working_dir);
     }
-    
+
     let output = cmd.output().context("Failed to execute cargo search")?;
-    
+
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
-    
+
     let result = if output.status.success() {
         if stdout.is_empty() {
             "No crates found".to_string()
@@ -60,7 +60,7 @@ fn handle_search_crates(params: &CargoToolParams) -> Result<Value> {
     } else {
         format!("Search failed: {}", stderr)
     };
-    
+
     Ok(json!({
         "content": [{
             "type": "text",
@@ -72,26 +72,26 @@ fn handle_search_crates(params: &CargoToolParams) -> Result<Value> {
 fn handle_crate_info(params: &CargoToolParams) -> Result<Value> {
     let mut cmd = Command::new("cargo");
     cmd.arg("info");
-    
+
     if let Some(crate_name) = &params.crate_name {
         cmd.arg(crate_name);
     }
-    
+
     if let Some(working_dir) = &params.working_directory {
         cmd.current_dir(working_dir);
     }
-    
+
     let output = cmd.output().context("Failed to execute cargo info")?;
-    
+
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
-    
+
     let result = if output.status.success() {
         stdout.to_string()
     } else {
         format!("Info failed: {}", stderr)
     };
-    
+
     Ok(json!({
         "content": [{
             "type": "text",
@@ -103,36 +103,36 @@ fn handle_crate_info(params: &CargoToolParams) -> Result<Value> {
 fn handle_add_crate(params: &CargoToolParams) -> Result<Value> {
     let mut cmd = Command::new("cargo");
     cmd.arg("add");
-    
+
     if let Some(crate_name) = &params.crate_name {
         cmd.arg(crate_name);
     }
-    
+
     if let Some(package) = &params.package {
         cmd.arg("-p").arg(package);
     }
-    
+
     if let Some(features) = &params.features {
         if !features.is_empty() {
             cmd.arg("--features").arg(features.join(","));
         }
     }
-    
+
     if let Some(working_dir) = &params.working_directory {
         cmd.current_dir(working_dir);
     }
-    
+
     let output = cmd.output().context("Failed to execute cargo add")?;
-    
+
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
-    
+
     let result = if output.status.success() {
         format!("Added crate successfully\n{}{}", stdout, stderr)
     } else {
         format!("Add crate failed: {}{}", stdout, stderr)
     };
-    
+
     Ok(json!({
         "content": [{
             "type": "text",
@@ -144,30 +144,30 @@ fn handle_add_crate(params: &CargoToolParams) -> Result<Value> {
 fn handle_remove_crate(params: &CargoToolParams) -> Result<Value> {
     let mut cmd = Command::new("cargo");
     cmd.arg("remove");
-    
+
     if let Some(crate_name) = &params.crate_name {
         cmd.arg(crate_name);
     }
-    
+
     if let Some(package) = &params.package {
         cmd.arg("-p").arg(package);
     }
-    
+
     if let Some(working_dir) = &params.working_directory {
         cmd.current_dir(working_dir);
     }
-    
+
     let output = cmd.output().context("Failed to execute cargo remove")?;
-    
+
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
-    
+
     let result = if output.status.success() {
         format!("Removed crate successfully\n{}{}", stdout, stderr)
     } else {
         format!("Remove crate failed: {}{}", stdout, stderr)
     };
-    
+
     Ok(json!({
         "content": [{
             "type": "text",
@@ -179,30 +179,30 @@ fn handle_remove_crate(params: &CargoToolParams) -> Result<Value> {
 fn handle_test(params: &CargoToolParams) -> Result<Value> {
     let mut cmd = Command::new("cargo");
     cmd.arg("test");
-    
+
     if let Some(package) = &params.package {
         cmd.arg("-p").arg(package);
     }
-    
+
     if let Some(test_name) = &params.test_name {
         cmd.arg(test_name);
     }
-    
+
     if let Some(working_dir) = &params.working_directory {
         cmd.current_dir(working_dir);
     }
-    
+
     let output = cmd.output().context("Failed to execute cargo test")?;
-    
+
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
-    
+
     let result = if output.status.success() {
         format!("{}{}", stdout, stderr)
     } else {
         format!("Tests failed:\n{}{}", stdout, stderr)
     };
-    
+
     Ok(json!({
         "content": [{
             "type": "text",
@@ -214,37 +214,41 @@ fn handle_test(params: &CargoToolParams) -> Result<Value> {
 fn handle_lint(params: &CargoToolParams) -> Result<Value> {
     let mut cmd = Command::new("cargo");
     cmd.arg("clippy");
-    
+
     // Always include tests unless explicitly disabled
     if !params.no_tests.unwrap_or(false) {
         cmd.arg("--tests");
     }
-    
+
     // Add package if specified
     if let Some(package) = &params.package {
         cmd.arg("-p").arg(package);
     }
-    
+
     // Set working directory if specified
     if let Some(working_dir) = &params.working_directory {
         cmd.current_dir(working_dir);
     }
-    
+
     // Build clippy arguments
     cmd.arg("--");
-    
-    let level = if params.warn_only.unwrap_or(false) { "-W" } else { "-D" };
+
+    let level = if params.warn_only.unwrap_or(false) {
+        "-W"
+    } else {
+        "-D"
+    };
     cmd.arg(format!("{}clippy::pedantic", level));
-    
+
     if params.ignore_docs.unwrap_or(false) {
         cmd.arg("-Aclippy::missing_docs");
     }
-    
+
     let output = cmd.output().context("Failed to execute cargo clippy")?;
-    
+
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
-    
+
     let result = if output.status.success() {
         if stdout.is_empty() && stderr.is_empty() {
             "Linting completed successfully".to_string()
@@ -254,7 +258,7 @@ fn handle_lint(params: &CargoToolParams) -> Result<Value> {
     } else {
         format!("Linting failed:\n{}{}", stdout, stderr)
     };
-    
+
     Ok(json!({
         "content": [{
             "type": "text",
@@ -267,17 +271,17 @@ fn handle_build(params: &CargoToolParams) -> Result<Value> {
     // Run cargo fmt first
     let mut fmt_cmd = Command::new("cargo");
     fmt_cmd.arg("fmt");
-    
+
     if let Some(package) = &params.package {
         fmt_cmd.arg("-p").arg(package);
     }
-    
+
     if let Some(working_dir) = &params.working_directory {
         fmt_cmd.current_dir(working_dir);
     }
-    
+
     let fmt_output = fmt_cmd.output().context("Failed to execute cargo fmt")?;
-    
+
     if !fmt_output.status.success() {
         let fmt_stderr = String::from_utf8_lossy(&fmt_output.stderr);
         return Ok(json!({
@@ -291,11 +295,6 @@ fn handle_build(params: &CargoToolParams) -> Result<Value> {
     // Now run cargo build
     let mut cmd = Command::new("cargo");
     cmd.arg("build");
-
-    // Always include tests unless explicitly disabled
-    if !params.no_tests.unwrap_or(false) {
-        cmd.arg("--tests");
-    }
 
     // Add release flag if specified
     if params.release.unwrap_or(false) {
@@ -886,7 +885,7 @@ pub fn execute_cargo_command(subcommand: &str, params: &CargoToolParams) -> Resu
 
 pub fn handle_tool_call(tool_name: &str, params: Value) -> Result<Value> {
     let start = Instant::now();
-    
+
     let cargo_params: CargoToolParams =
         serde_json::from_value(params).context("Failed to parse tool parameters")?;
 
@@ -908,7 +907,10 @@ pub fn handle_tool_call(tool_name: &str, params: Value) -> Result<Value> {
         if let Some(content_array) = content.as_array_mut() {
             if let Some(first_item) = content_array.get_mut(0) {
                 if let Some(obj) = first_item.as_object_mut() {
-                    obj.insert("execution_time_ms".to_string(), json!(start.elapsed().as_millis()));
+                    obj.insert(
+                        "execution_time_ms".to_string(),
+                        json!(start.elapsed().as_millis()),
+                    );
                 }
             }
         }

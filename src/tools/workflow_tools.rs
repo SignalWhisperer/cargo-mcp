@@ -40,10 +40,6 @@ pub fn get_workflow_tools() -> Vec<Tool> {
                     "release": {
                         "type": "boolean",
                         "description": "Build in release mode with optimizations"
-                    },
-                    "no_tests": {
-                        "type": "boolean",
-                        "description": "Disable test building (tests are built by default)"
                     }
                 }
             }),
