@@ -267,49 +267,6 @@ fn handle_lint(params: &CargoToolParams) -> Result<Value> {
     }))
 }
 
-fn handle_build(params: &CargoToolParams) -> Result<Value> {
-    let mut cmd = Command::new("cargo");
-    cmd.arg("build");
-
-    // Add release flag if specified
-    if params.release.unwrap_or(false) {
-        cmd.arg("--release");
-    }
-
-    // Add package if specified
-    if let Some(package) = &params.package {
-        cmd.arg("-p").arg(package);
-    }
-
-    // Set working directory if specified
-    if let Some(working_dir) = &params.working_directory {
-        cmd.current_dir(working_dir);
-    }
-
-    let output = cmd.output().context("Failed to execute cargo build")?;
-
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
-
-    let result = if output.status.success() {
-        let build_result = if stdout.is_empty() && stderr.is_empty() {
-            "Build completed successfully".to_string()
-        } else {
-            format!("{}{}", stdout, stderr)
-        };
-        format!("Code formatted successfully\n{}", build_result)
-    } else {
-        format!("Build failed:\n{}{}", stdout, stderr)
-    };
-
-    Ok(json!({
-        "content": [{
-            "type": "text",
-            "text": result
-        }]
-    }))
-}
-
 fn handle_pre_build(params: &CargoToolParams) -> Result<Value> {
     let mut cmd = Command::new("cargo");
     cmd.arg("check");
@@ -844,8 +801,7 @@ pub fn handle_tool_call(tool_name: &str, params: Value) -> Result<Value> {
         serde_json::from_value(params).context("Failed to parse tool parameters")?;
 
     let mut result = match tool_name {
-        "pre_build" => handle_pre_build(&cargo_params),
-        "build" => handle_build(&cargo_params),
+        "check" => handle_pre_build(&cargo_params),
         "lint" => handle_lint(&cargo_params),
         "test" => handle_test(&cargo_params),
         "clean" => handle_clean(&cargo_params),
