@@ -268,31 +268,6 @@ fn handle_lint(params: &CargoToolParams) -> Result<Value> {
 }
 
 fn handle_build(params: &CargoToolParams) -> Result<Value> {
-    // Run cargo fmt first
-    let mut fmt_cmd = Command::new("cargo");
-    fmt_cmd.arg("fmt");
-
-    if let Some(package) = &params.package {
-        fmt_cmd.arg("-p").arg(package);
-    }
-
-    if let Some(working_dir) = &params.working_directory {
-        fmt_cmd.current_dir(working_dir);
-    }
-
-    let fmt_output = fmt_cmd.output().context("Failed to execute cargo fmt")?;
-
-    if !fmt_output.status.success() {
-        let fmt_stderr = String::from_utf8_lossy(&fmt_output.stderr);
-        return Ok(json!({
-            "content": [{
-                "type": "text",
-                "text": format!("Formatting failed: {}", fmt_stderr)
-            }]
-        }));
-    }
-
-    // Now run cargo build
     let mut cmd = Command::new("cargo");
     cmd.arg("build");
 
@@ -360,7 +335,7 @@ fn handle_pre_build(params: &CargoToolParams) -> Result<Value> {
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
 
-    let mut result = if output.status.success() {
+    let result = if output.status.success() {
         if stdout.is_empty() && stderr.is_empty() {
             "Pre-build check completed successfully".to_string()
         } else {
@@ -374,27 +349,6 @@ fn handle_pre_build(params: &CargoToolParams) -> Result<Value> {
             }]
         }));
     };
-
-    // Run cargo fmt after successful check
-    let mut fmt_cmd = Command::new("cargo");
-    fmt_cmd.arg("fmt");
-
-    if let Some(package) = &params.package {
-        fmt_cmd.arg("-p").arg(package);
-    }
-
-    if let Some(working_dir) = &params.working_directory {
-        fmt_cmd.current_dir(working_dir);
-    }
-
-    let fmt_output = fmt_cmd.output().context("Failed to execute cargo fmt")?;
-
-    if fmt_output.status.success() {
-        result.push_str("\nCode formatted successfully");
-    } else {
-        let fmt_stderr = String::from_utf8_lossy(&fmt_output.stderr);
-        result.push_str(&format!("\nFormatting failed: {}", fmt_stderr));
-    }
 
     Ok(json!({
         "content": [{

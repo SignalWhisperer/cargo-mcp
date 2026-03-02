@@ -695,6 +695,7 @@ cmd.stdin(Stdio::null());
 - ✅ Capture both stdout and stderr
 - ✅ Include execution time in success messages
 - ✅ Use `.context()` for error messages
+- ✅ Run `fmt` tool separately after making code changes (not automatic)
 
 **DON'T**:
 - ❌ Use shell interpolation for commands (security risk)
@@ -704,6 +705,7 @@ cmd.stdin(Stdio::null());
 - ❌ Add state to the server (keep it stateless)
 - ❌ Block async functions with synchronous I/O
 - ❌ Panic on errors (use `Result` types)
+- ❌ Assume code is auto-formatted (formatting is manual via `fmt` tool)
 
 ### Code Generation Guidelines
 

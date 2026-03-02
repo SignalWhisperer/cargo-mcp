@@ -132,9 +132,9 @@ graph TB
 **MCP Tool Sequence**:
 1. `check` - Fast compilation check
 2. `clippy` - Lint analysis
-3. `fmt` - Code formatting
-4. `build` - Full compilation
-5. `test` - Run test suite
+3. `build` - Full compilation
+4. `test` - Run test suite
+5. `fmt` - Code formatting (run separately as needed)
 
 ---
 
@@ -316,12 +316,17 @@ graph TB
 
 ### Quick Validation
 ```
-check → clippy → fmt
+check → clippy
 ```
 
 ### Full Build Cycle
 ```
 check → build → test → doc
+```
+
+### With Formatting
+```
+fmt → check → build → test
 ```
 
 ### Dependency Update
@@ -331,7 +336,12 @@ update → tree → check → test
 
 ### New Feature Development
 ```
-add → check → test → clippy → fmt
+add → check → test → clippy
+```
+
+### Code Formatting
+```
+fmt (run separately as needed)
 ```
 
 ### Release Preparation
