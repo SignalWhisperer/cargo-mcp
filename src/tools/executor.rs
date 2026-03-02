@@ -801,7 +801,7 @@ pub fn handle_tool_call(tool_name: &str, params: Value) -> Result<Value> {
         serde_json::from_value(params).context("Failed to parse tool parameters")?;
 
     let mut result = match tool_name {
-        "check" => handle_pre_build(&cargo_params),
+        "compile" => handle_pre_build(&cargo_params),
         "lint" => handle_lint(&cargo_params),
         "test" => handle_test(&cargo_params),
         "clean" => handle_clean(&cargo_params),

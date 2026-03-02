@@ -3,8 +3,8 @@ use crate::types::Tool;
 pub fn get_workflow_tools() -> Vec<Tool> {
     vec![
         Tool {
-            name: "check".to_string(),
-            description: "Fast check for errors without building binaries (recommended for development). Runs cargo check with tests enabled by default.".to_string(),
+            name: "compile".to_string(),
+            description: "Check if the code compiles without producing binaries. Fast feedback for development.".to_string(),
             input_schema: serde_json::json!({
                 "type": "object",
                 "properties": {
