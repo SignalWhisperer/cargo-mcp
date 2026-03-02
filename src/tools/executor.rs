@@ -112,10 +112,10 @@ fn handle_add_crate(params: &CargoToolParams) -> Result<Value> {
         cmd.arg("-p").arg(package);
     }
 
-    if let Some(features) = &params.features {
-        if !features.is_empty() {
-            cmd.arg("--features").arg(features.join(","));
-        }
+    if let Some(features) = &params.features
+        && !features.is_empty()
+    {
+        cmd.arg("--features").arg(features.join(","));
     }
 
     if let Some(working_dir) = &params.working_directory {
@@ -813,17 +813,15 @@ pub fn handle_tool_call(tool_name: &str, params: Value) -> Result<Value> {
     }?;
 
     // Update the execution time in the result
-    if let Some(content) = result.get_mut("content") {
-        if let Some(content_array) = content.as_array_mut() {
-            if let Some(first_item) = content_array.get_mut(0) {
-                if let Some(obj) = first_item.as_object_mut() {
-                    obj.insert(
-                        "execution_time_ms".to_string(),
-                        json!(start.elapsed().as_millis()),
-                    );
-                }
-            }
-        }
+    if let Some(content) = result.get_mut("content")
+        && let Some(content_array) = content.as_array_mut()
+        && let Some(first_item) = content_array.get_mut(0)
+        && let Some(obj) = first_item.as_object_mut()
+    {
+        obj.insert(
+            "execution_time_ms".to_string(),
+            json!(start.elapsed().as_millis()),
+        );
     }
 
     Ok(result)
